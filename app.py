@@ -7,8 +7,9 @@ from database import add_user, login_user
 # ---------------- PAGE CONFIG ----------------
 
 st.set_page_config(
-    page_title="AAC Diabetes Predictor",
-    layout="centered"
+    page_title="AAC Diabetes Prediction System",
+    page_icon="Medical",
+    layout="wide"
 )
 
 # ---------------- LOAD MODEL ----------------
@@ -21,49 +22,82 @@ columns = pickle.load(open("columns.pkl", "rb"))
 st.markdown("""
 <style>
 
-body {
-    font-family: Arial, sans-serif;
+#MainMenu {
+    visibility: hidden;
+}
+
+footer {
+    visibility: hidden;
+}
+
+header {
+    visibility: hidden;
 }
 
 .stApp {
-    background-color: #f4f6f9;
+    background-color: #eef2f7;
 }
 
-/* Main Container */
+/* Sidebar */
 
-.main-box {
+section[data-testid="stSidebar"] {
+    background-color: #0f172a;
+    color: white;
+}
+
+/* Main Card */
+
+.main-container {
     background-color: white;
-    padding: 30px;
-    border-radius: 12px;
-    box-shadow: 0px 2px 12px rgba(0,0,0,0.1);
+    padding: 35px;
+    border-radius: 15px;
+    box-shadow: 0px 4px 20px rgba(0,0,0,0.08);
     margin-top: 20px;
 }
 
 /* Title */
 
-.title {
+.main-title {
     text-align: center;
-    font-size: 34px;
-    font-weight: bold;
-    color: #1f2937;
-    margin-bottom: 10px;
+    font-size: 38px;
+    font-weight: 700;
+    color: #0f172a;
+    margin-bottom: 5px;
 }
 
-.subtitle {
+.sub-title {
     text-align: center;
-    color: #6b7280;
+    font-size: 17px;
+    color: #64748b;
     margin-bottom: 30px;
+}
+
+/* Input Labels */
+
+label {
+    font-weight: 600 !important;
+    color: #1e293b !important;
+}
+
+/* Inputs */
+
+.stTextInput input,
+.stNumberInput input {
+    border-radius: 10px !important;
+    border: 1px solid #cbd5e1 !important;
+    padding: 10px !important;
+    background-color: #f8fafc !important;
 }
 
 /* Buttons */
 
 .stButton > button {
     width: 100%;
+    height: 48px;
+    border-radius: 10px;
+    border: none;
     background-color: #2563eb;
     color: white;
-    border-radius: 8px;
-    border: none;
-    height: 45px;
     font-size: 16px;
     font-weight: 600;
 }
@@ -73,21 +107,28 @@ body {
     color: white;
 }
 
-/* Input Fields */
+/* Result Box */
 
-.stTextInput input,
-.stNumberInput input {
-    border-radius: 8px;
+.result-success {
+    padding: 18px;
+    border-radius: 10px;
+    background-color: #dcfce7;
+    color: #166534;
+    font-size: 20px;
+    font-weight: 600;
+    text-align: center;
+    margin-top: 20px;
 }
 
-/* Sidebar */
-
-section[data-testid="stSidebar"] {
-    background-color: #1f2937;
-}
-
-section[data-testid="stSidebar"] .css-1d391kg {
-    color: white;
+.result-danger {
+    padding: 18px;
+    border-radius: 10px;
+    background-color: #fee2e2;
+    color: #991b1b;
+    font-size: 20px;
+    font-weight: 600;
+    text-align: center;
+    margin-top: 20px;
 }
 
 </style>
@@ -95,70 +136,74 @@ section[data-testid="stSidebar"] .css-1d391kg {
 
 # ---------------- SIDEBAR ----------------
 
-st.sidebar.title("AAC Diabetes Predictor")
+st.sidebar.title("AAC Healthcare")
 
 menu = ["Login", "Signup"]
 
-choice = st.sidebar.selectbox("Menu", menu)
+choice = st.sidebar.radio("Navigation", menu)
 
-# ---------------- SIGNUP PAGE ----------------
+# ---------------- SIGNUP ----------------
 
 if choice == "Signup":
 
-    st.markdown('<div class="main-box">', unsafe_allow_html=True)
+    st.markdown('<div class="main-container">', unsafe_allow_html=True)
 
     st.markdown(
-        '<div class="title">Create Account</div>',
+        '<div class="main-title">Create Account</div>',
         unsafe_allow_html=True
     )
 
     st.markdown(
-        '<div class="subtitle">Register to access the system</div>',
+        '<div class="sub-title">Register to access the diabetes prediction system</div>',
         unsafe_allow_html=True
     )
 
-    new_user = st.text_input("Username")
+    col1, col2, col3 = st.columns([1,2,1])
 
-    new_password = st.text_input(
-        "Password",
-        type="password"
-    )
+    with col2:
 
-    confirm_password = st.text_input(
-        "Confirm Password",
-        type="password"
-    )
+        new_user = st.text_input("Username")
 
-    if st.button("Signup"):
+        new_password = st.text_input(
+            "Password",
+            type="password"
+        )
 
-        if new_user == "" or new_password == "":
-            st.warning("Please fill all fields")
+        confirm_password = st.text_input(
+            "Confirm Password",
+            type="password"
+        )
 
-        elif new_password != confirm_password:
-            st.error("Passwords do not match")
+        if st.button("Create Account"):
 
-        else:
+            if not new_user or not new_password:
+                st.warning("Please fill all fields")
 
-            add_user(new_user, new_password)
+            elif new_password != confirm_password:
+                st.error("Passwords do not match")
 
-            st.success("Account created successfully")
-            st.info("Go to Login Page")
+            else:
+
+                add_user(new_user, new_password)
+
+                st.success("Account created successfully")
+                st.info("Go to the login page")
 
     st.markdown('</div>', unsafe_allow_html=True)
 
-# ---------------- LOGIN PAGE ----------------
+# ---------------- LOGIN ----------------
 
 elif choice == "Login":
 
-    st.markdown('<div class="main-box">', unsafe_allow_html=True)
+    st.markdown('<div class="main-container">', unsafe_allow_html=True)
 
     st.markdown(
-        '<div class="title">AAC Diabetes Predictor</div>',
+        '<div class="main-title">AAC Diabetes Prediction System</div>',
         unsafe_allow_html=True
     )
 
     st.markdown(
-        '<div class="subtitle">Login to continue</div>',
+        '<div class="sub-title">Machine Learning Based Diabetes Risk Prediction</div>',
         unsafe_allow_html=True
     )
 
@@ -179,7 +224,7 @@ elif choice == "Login":
 
             st.markdown("---")
 
-            st.subheader("Patient Details")
+            st.subheader("Patient Information")
 
             col1, col2 = st.columns(2)
 
@@ -187,63 +232,65 @@ elif choice == "Login":
 
                 preg = st.number_input(
                     "Pregnancies",
-                    0,
-                    20,
-                    1
+                    min_value=0,
+                    max_value=20,
+                    value=1
                 )
 
                 glucose = st.number_input(
                     "Glucose",
-                    0,
-                    300,
-                    120
+                    min_value=0,
+                    max_value=300,
+                    value=120
                 )
 
                 bp = st.number_input(
                     "Blood Pressure",
-                    0,
-                    150,
-                    70
+                    min_value=0,
+                    max_value=150,
+                    value=70
                 )
 
                 skin = st.number_input(
                     "Skin Thickness",
-                    0,
-                    100,
-                    20
+                    min_value=0,
+                    max_value=100,
+                    value=20
                 )
 
             with col2:
 
                 insulin = st.number_input(
                     "Insulin",
-                    0,
-                    900,
-                    80
+                    min_value=0,
+                    max_value=900,
+                    value=80
                 )
 
                 bmi = st.number_input(
                     "BMI",
-                    0.0,
-                    70.0,
-                    25.0
+                    min_value=0.0,
+                    max_value=70.0,
+                    value=25.0
                 )
 
                 dpf = st.number_input(
                     "Diabetes Pedigree Function",
-                    0.0,
-                    3.0,
-                    0.5
+                    min_value=0.0,
+                    max_value=3.0,
+                    value=0.5
                 )
 
                 age = st.number_input(
                     "Age",
-                    1,
-                    100,
-                    30
+                    min_value=1,
+                    max_value=100,
+                    value=30
                 )
 
-            if st.button("Predict"):
+            st.markdown("")
+
+            if st.button("Predict Diabetes"):
 
                 input_data = pd.DataFrame({
 
@@ -265,24 +312,30 @@ elif choice == "Login":
 
                 prediction = model.predict(input_data)
 
-                st.markdown("---")
-
                 if prediction[0] == 1:
 
-                    st.error(
-                        "High Risk of Diabetes"
+                    st.markdown(
+                        """
+                        <div class="result-danger">
+                        High Risk of Diabetes
+                        </div>
+                        """,
+                        unsafe_allow_html=True
                     )
 
                 else:
 
-                    st.success(
-                        "Low Risk of Diabetes"
+                    st.markdown(
+                        """
+                        <div class="result-success">
+                        Low Risk of Diabetes
+                        </div>
+                        """,
+                        unsafe_allow_html=True
                     )
 
         else:
 
-            st.error(
-                "Invalid Username or Password"
-            )
+            st.error("Invalid Username or Password")
 
     st.markdown('</div>', unsafe_allow_html=True)
